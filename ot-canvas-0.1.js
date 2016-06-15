@@ -5,7 +5,6 @@
  * Released under the MIT license
  * Date: 2015-06-03
  */
-
 var OTJS = OTJS || {};
 (function (global) {
     var sub = {};
@@ -42,23 +41,12 @@ OTJS.Canvas = (function (mainModule) {
             };
         }
 
-        //Old
-        //function getARGBColor(a, r, g, b) {
-        //    var ir = Math.floor(255 * r);
-        //    var ig = Math.floor(255 * g);
-        //    var ib = Math.floor(255 * b);
-
-        //    return "rgba(" + ir + ", " + ig + ", " + ib + ", " + a + ")";
-        //}
-
         function getRGBAColor(r, g, b, a) {
             var ir = Math.floor(255 * r);
             var ig = Math.floor(255 * g);
             var ib = Math.floor(255 * b);
             return "rgba(" + ir + ", " + ig + ", " + ib + ", " + a + ")";
         };
-
-
 
         return {
             drawLine: function (x1, y1, x2, y2) {
@@ -232,9 +220,6 @@ OTJS.Stage = (function (subMod) {
         return OTJS.Canvas.create2D(canvasId, settings);
     };
 
-
-    //subMod.createAnimation = function(obj, )
-
     return subMod;
 }(OTJS.Stage || {}));
 
@@ -248,7 +233,6 @@ OTJS.Animator = (function (subMod) {
         var timeStart = timeCurrent + delay;
         var timeEnd = timeStart + duration;
         var running = true;
-        //var interval = 33;
         var interval = 10;//16.6;
 
         for (var name in properties) {
@@ -270,9 +254,6 @@ OTJS.Animator = (function (subMod) {
                 var propNewVal = propOrgVal + pos * (propVal - propOrgVal);
                 obj[name] = propNewVal;                
             }
-            //for (var ii = 0; ii < 99000000; ii++) {
-            //   // pos++;
-            //}
 
             if (timeCurrent > timeEnd) {
                 running = false;
@@ -282,11 +263,7 @@ OTJS.Animator = (function (subMod) {
                     callback();
 
             }
-
-
         }, interval);
-
-
     }
 
     return subMod;

@@ -182,17 +182,6 @@ OTJS.Canvas = (function (mainModule) {
 }(OTJS.Canvas || {}));
 
 
-//OTJS.YoYo = (function (subMod) {
-//    subMod.yo = function () {
-//        alert("Yo123456");
-//    }
-
-//    return subMod;
-//}(OT_Canvas.YoYo || {}));
-
-
-
-
 OTJS.Stage = (function (subMod) {
     "use strict"
 

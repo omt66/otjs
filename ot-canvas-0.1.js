@@ -12,10 +12,8 @@ var OTJS = OTJS || {};
     global.OTJS = global.OTJS || {};
 
     global.OTJS.NewSub = sub;
-    //return sub;
 }(window));
 
-//var OTJS = OTJS || {};
 OTJS.Canvas = (function (mainModule) {
     "use strict"
 
@@ -169,7 +167,6 @@ OTJS.Canvas = (function (mainModule) {
     return mainModule;
 }(OTJS.Canvas || {}));
 
-
 OTJS.Stage = (function (subMod) {
     "use strict"
 
@@ -222,7 +219,6 @@ OTJS.Stage = (function (subMod) {
 
     return subMod;
 }(OTJS.Stage || {}));
-
 
 OTJS.Animator = (function (subMod) {
     "use strict"

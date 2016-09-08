@@ -5,22 +5,19 @@
  * Released under the MIT license
  * Date: 2015-06-03
  */
-var OTJS = OTJS || {};
-(function (global) {
-    var sub = {};
-
-    global.OTJS = global.OTJS || {};
-
-    global.OTJS.NewSub = sub;
-}(window));
-
+window.OTJS = {};
 OTJS.Canvas = (function (mainModule) {
     "use strict"
 
     mainModule.create2D = function (canvasId, settings) {
         var canvasElement = document.getElementById(canvasId);
         var c2d = canvasElement.getContext("2d");
-        
+
+        var mShowFPS = false;
+        var mFrameCntr = 0;
+        var mFPSLastDate = 0;
+        var mFPS = 0;
+
         function getMousePosition(mouseEvent) {
             var rect = canvasElement.getBoundingClientRect();
 
@@ -48,7 +45,7 @@ OTJS.Canvas = (function (mainModule) {
 
         return {
             drawLine: function (x1, y1, x2, y2) {
-                c2d.beginPath();    
+                c2d.beginPath();
                 c2d.moveTo(x1, y1);
                 c2d.lineTo(x2, y2);
                 c2d.stroke();
@@ -64,12 +61,12 @@ OTJS.Canvas = (function (mainModule) {
                 c2d.fill();
                 //c2d.stroke();
             },
-            clear: function() {
+            clear: function () {
                 c2d.clearRect(0, 0, c2d.canvas.width, c2d.canvas.height);
             },
             // Blend modes: lighter, multiply, xor, etc
             setBlendMode: function (blendMode) {
-                c2d.globalCompositeOperation = blendMode; 
+                c2d.globalCompositeOperation = blendMode;
             },
             setDrawColor: function (r, g, b, a) {
                 c2d.strokeStyle = getRGBAColor(r, g, b, a);
@@ -79,6 +76,35 @@ OTJS.Canvas = (function (mainModule) {
                 var g = Math.random();
                 var b = Math.random();
                 this.setDrawColor(r, g, b, 0.75);
+            },
+            drawImage: function (img, x, y, w, h, rotation) {
+                var displayImage;
+
+                if (!rotation) {
+                    rotation = 0;
+                }
+
+                if (img instanceof Image) {
+                    displayImage = img;
+                }
+                else {
+                    displayImage = new Image();
+                    displayImage.src = img;
+                }
+
+                w = w || displayImage.width;
+                h = h || displayImage.height;
+
+                c2d.save();
+                //c2d.setTransform(1, 0, 0, 1, 0, 0);
+                var rotationInRadian = rotation * Math.PI / 180;
+                c2d.translate(x, y);
+                c2d.rotate(rotationInRadian);
+                //c2d.drawImage(img, 0, 0, w, h, -w/2, -h/2, w, h);
+                c2d.drawImage(displayImage, -w / 2, -h / 2, w, h);
+                c2d.restore();
+
+                return displayImage;
             },
             addMouseMoveHandler: function (callback) {
                 canvasElement.addEventListener("mousemove", function (e) {
@@ -154,12 +180,152 @@ OTJS.Canvas = (function (mainModule) {
                     var y = pos.y;
                     callback({ target: target, clientX: x, clientY: y });
                 }, false);
-            },            
+            },
             setFillColor: function (r, g, b, a) {
                 c2d.fillStyle = getRGBAColor(r, g, b, a);
             },
+            strokeStyle: function (colorRGB) {
+                c2d.strokeStyle = colorRGB;
+            },
+            drawRectangle: function (x, y, w, h) {
+                c2d.beginPath();
+                c2d.fillRect(x, y, w, h);
+                c2d.closePath();
+            },
+            drawRoundedRectangle: function (x, y, w, h, r) {
+                r = r || 5;
+                c2d.beginPath();
+                c2d.moveTo(x + r, y);
+                c2d.lineTo(x + w - r, y);
+                c2d.arcTo(x + w, y, x + w, y + r, r);
+                c2d.lineTo(x + w, y + h - r);
+                c2d.arcTo(x + w, y + h, x + w - r, y + h, r);
+                c2d.lineTo(x + r, y + h);
+                c2d.arcTo(x, y + h, x, y + h - r, r);
+                c2d.lineTo(x, y + r);
+                c2d.arcTo(x, y, x + r, y, r);
+                c2d.closePath();
+                c2d.stroke();
+            },
+            fillRoundedRectangle: function (x, y, w, h, r) {
+                c2d.beginPath();
+                c2d.moveTo(x + r, y);
+                c2d.lineTo(x + w - r, y);
+                c2d.arcTo(x + w, y, x + w, y + r, r);
+                c2d.lineTo(x + w, y + h - r);
+                c2d.arcTo(x + w, y + h, x + w - r, y + h, r);
+                c2d.lineTo(x + r, y + h);
+                c2d.arcTo(x, y + h, x, y + h - r, r);
+                c2d.lineTo(x, y + r);
+                c2d.arcTo(x, y, x + r, y, r);
+                c2d.closePath();
+                c2d.fill();
+            },
+            fillRect: function (x, y, w, h) {
+                c2d.fillRect(x, y, w, h);
+            },
+            setGlobalAlpha: function (alpha) {
+                c2d.globalAlpha = alpha;
+            },
+            clearRect: function (x, y, w, h) {
+                c2d.clearRect(x, y, w, h);
+            },
             fillString: function (x, y, msg) {
                 c2d.fillText(msg, x, y);
+            },
+            fillStringWithShadow: function (x, y, msg) {
+                c2d.save();
+                c2d.shadowColor = "#111";
+                c2d.shadowOffsetX = 1;
+                c2d.shadowOffsetY = 1;
+                c2d.shadowBlur = 7;
+                c2d.fillText(msg, x, y);
+                c2d.restore();
+            },
+            getWidth: function () {
+                return canvasElement.width;
+            },
+            getHeight: function () {
+                return canvasElement.height;
+            },
+            setWidth: function (width) {
+                canvasElement.width = width;
+            },
+            setHeight: function (height) {
+                canvasElement.height = height;
+            },
+            setFont: function (fontInfo) {
+                // Example: 'italic 30pt Calibri'
+                c2d.font = fontInfo;
+            },
+            toDataURL: function () {
+                return canvasElement.toDataURL();
+            },
+            drawCanvasOnCanvas: function (canvas, x, y, w, h) {
+                var otherCanvasElement = canvas.getCanvasElement();
+                c2d.drawImage(otherCanvasElement, x, y, w, h);
+            },
+            getCanvasElement: function () {
+                return canvasElement;
+            },
+            drawPolygon: function (points) {
+                var len = points.length;
+                var p = points[0];
+                c2d.beginPath();
+                c2d.moveTo(p.x, p.y);
+
+                for (var i = 1; i < len; i++) {
+                    p = points[i];
+                    c2d.lineTo(p.x, p.y);
+                }
+                c2d.closePath();
+                c2d.stroke();
+                c2d.fill();
+            },
+            drawRandomLines: function (nofLines) {
+                var n = nofLines || 1;
+                var sw = this.getWidth();
+                var sh = this.getHeight();
+
+                for (var i = 0; i < n; i++) {
+                    var x1 = sw * Math.random();
+                    var y1 = sh * Math.random();
+                    var x2 = sw * Math.random();
+                    var y2 = sh * Math.random();
+
+                    this.drawLine(x1, y1, x2, y2);
+                }
+            },
+            setLineWidth: function (lineWidth) {
+                c2d.lineWidth = lineWidth;
+            },
+            drawString: function (x, y, msg) {
+                c2d.strokeText(msg, x, y);
+            },
+            showFPS: function (paintBackground) {
+                if (paintBackground) {
+                    this.setFillColor(1, 1, 1, 1);
+                    this.fillRect(10, 2, 50, 22);
+                }
+                this.setFillColor(0, 0, 0, 0.75);
+                this.fillString(15, 25, "FPS: " + mFPS);
+                var date = +new Date();
+                mFrameCntr++;
+                if (date > mFPSLastDate + 1000) {
+                    mFPSLastDate = date;
+                    mFPS = mFrameCntr;
+                    mFrameCntr = 0;
+                }
+            },
+            changeGlobalAlpha: function (alpha) {
+                c2d.globalAlpha = alpha;
+            },
+            setShadowBlur: function (blurSize, color) {
+                c2d.shadowBlur = blurSize;
+                c2d.shadowColor = color;
+            },
+            removeShadowBlur: function () {
+                c2d.shadowBlur = 0;
             }
         }
     }
@@ -200,7 +366,7 @@ OTJS.Stage = (function (subMod) {
                 animating = true;
                 animate();
             },
-            toggle: function() {
+            toggle: function () {
                 animating = !animating;
                 animate();
             },
@@ -209,7 +375,7 @@ OTJS.Stage = (function (subMod) {
             },
             stop: function () {
                 animating = false;
-            },            
+            },
         };
     };
 
@@ -248,7 +414,7 @@ OTJS.Animator = (function (subMod) {
                 var propVal = properties[name];
                 var propOrgVal = originalPropertyValues[name];
                 var propNewVal = propOrgVal + pos * (propVal - propOrgVal);
-                obj[name] = propNewVal;                
+                obj[name] = propNewVal;
             }
 
             if (timeCurrent > timeEnd) {

@@ -12,9 +12,17 @@ OTJS.Canvas = (function (mainModule) {
     mainModule.create2D = function (canvasId, settings) {
         var canvasElement = document.getElementById(canvasId);
         var c2d = canvasElement.getContext("2d");
+<<<<<<< HEAD
         var frameCntr = 0;
         var fpsLastDate = 0;
         var fps = 0;
+=======
+
+        var mShowFPS = false;
+        var mFrameCntr = 0;
+        var mFPSLastDate = 0;
+        var mFPS = 0;
+>>>>>>> origin/master
 
         function getMousePosition(mouseEvent) {
             var rect = canvasElement.getBoundingClientRect();
@@ -306,6 +314,7 @@ OTJS.Canvas = (function (mainModule) {
                     this.fillRect(10, 2, 50, 22);
                 }
                 this.setFillColor(0, 0, 0, 0.75);
+<<<<<<< HEAD
                 this.fillString(15, 25, "FPS: " + fps);
                 var date = +new Date();
                 frameCntr++;
@@ -313,6 +322,15 @@ OTJS.Canvas = (function (mainModule) {
                     fpsLastDate = date;
                     fps = frameCntr;
                     frameCntr = 0;
+=======
+                this.fillString(15, 25, "FPS: " + mFPS);
+                var date = +new Date();
+                mFrameCntr++;
+                if (date > mFPSLastDate + 1000) {
+                    mFPSLastDate = date;
+                    mFPS = mFrameCntr;
+                    mFrameCntr = 0;
+>>>>>>> origin/master
                 }
             },
             changeGlobalAlpha: function (alpha) {

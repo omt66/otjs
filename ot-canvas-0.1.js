@@ -419,8 +419,9 @@ OTJS.Animator = (function (subMod) {
                 running = false;
                 clearInterval(intervalId);
 
-                if (callback)
-                    callback();
+                if (callback) {
+                    callback(obj);
+                }
 
             }
         }, interval);

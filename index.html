@@ -20,33 +20,85 @@
     <script>
         var canvas1 = OTJS.Canvas.create2D("canvas1");
         var x = 200;
-        var y = 200;        
+        var y = 200;
         var maxX = 500;
         var maxY = 400;
         var deltaX = 5*Math.random() + 1;
         var deltaY = 5*Math.random() + 1;
-        
+
+        var Node = (function () {
+            function Node(x, y, width) {
+                this.x = x;
+                this.y = y;
+                this.width = width || 15;
+            }
+
+            Node.prototype.drawOn = function(canvas) {
+                canvas.setFillColor(0.9, 0.5, 0.1, 0.75);
+                canvas.fillCircle(this.x, this.y, this.width/3);
+
+                canvas.setLineWidth(2);
+                canvas.setDrawColor(0, 0.2, 0.75, 0.8);
+                canvas.drawCircle(this.x, this.y, this.width/2);
+
+                canvas.setLineWidth(4);
+                canvas.setDrawColor(0, 0.9, 0.25, 0.7);
+                canvas.drawCircle(this.x, this.y, this.width);
+            }
+
+            Node.prototype.animateRandomly = function(obj) {
+                var rx = 50 + 200*Math.random();
+                var ry = 50 + 200*Math.random();
+                var delay = 100 + 1500*Math.random();
+                var duration = 1000 + 2000*Math.random();
+                obj = obj || this;
+
+                OTJS.Animator.animate(obj,
+                                        {x: rx, y: ry},
+                                        delay,
+                                        duration,
+                                        obj.animateRandomly);
+            }
+
+            return Node;
+        }());
+
+        var nodes = [
+            new Node(10, 20, 5),
+            new Node(20, 40, 10),
+            new Node(50, 30, 15),
+            new Node(100, 100, 20),
+            new Node(150, 200, 25),
+            new Node(200, 150, 30)
+        ];
+
+        nodes.forEach(n => n.animateRandomly());
+
         function render() {
             canvas1.clear();
+            canvas1.setLineWidth(2);
             canvas1.setDrawColor(0, 0.1, 0.85, 0.75);
             canvas1.setFillColor(0.1, 0.7, 0.9, 0.3);
             canvas1.drawCircle(x, y, 25);
             canvas1.fillCircle(x, y, 15);
             canvas1.setFillColor(0.8, 1, 0.5, 1);
             canvas1.fillCircle(x, y, 7);
-            
+
             x += deltaX;
             y += deltaY;
-            
+
             if (x < 0 || x > maxX)
                 deltaX *= -1;
-            
+
             if (y < 0 || y > maxY)
                 deltaY *= -1;
+
+            nodes.forEach(n => n.drawOn(canvas1));
         }
 
         var renderer = OTJS.Stage.renderer(render, 30);
         renderer.start();
+
     </script>
 </body>
 </html>
